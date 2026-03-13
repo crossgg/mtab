@@ -47,7 +47,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=redis
+            type=raw,value=latest
 
       # 构建并推送到 GHCR
       - name: Build and push Docker image

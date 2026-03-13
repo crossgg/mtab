@@ -4,8 +4,6 @@ php-fpm7
 
 nginx
 
-nohup redis-server /opt/redis.conf & > /dev/null &
-
 lock_file="/move.lock"
 source_dir="/www/"
 destination_dir="/app"
@@ -39,7 +37,7 @@ else
   php "/app/env.php";#安装脚本
 fi
 
-echo "php-fpm7,redis and nginx started"
+echo "php-fpm7 and nginx started"
 
 while true; do
     sleep 2
