@@ -167,6 +167,7 @@ class Install
         try {
             $conn = $this->connect($form);
         } catch (\Exception $e) {
+            file_put_contents(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'install_error.log', "Connect Error: " . $e->getMessage() . "\n", FILE_APPEND);
             return $this->json(['code' => 500, 'msg' => $e->getMessage()]);
         }
         if ($database_type == 1) { //全新安装
@@ -188,6 +189,7 @@ class Install
                         $conn->exec($sql_statement);
                         $this->output("执行完成: " . mb_substr($sql_statement, 0, 30), true);
                     } catch (Exception $exception) {
+                        file_put_contents(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'install_error.log', "Table Error: " . $sql_statement . "\nError: " . $exception->getMessage() . "\n", FILE_APPEND);
                         return $this->json(['code' => 500, 'msg' => '建表失败: ' . $sql_statement . ' -> ' . $exception->getMessage()]);
                     }
                 }
@@ -205,6 +207,7 @@ class Install
                         $conn->exec($sql_statement);
                         $this->output("执行完成: " . mb_substr($sql_statement, 0, 30), true);
                     } catch (Exception $exception) {
+                        file_put_contents(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'install_error.log', "Data Error: " . $sql_statement . "\nError: " . $exception->getMessage() . "\n", FILE_APPEND);
                         return $this->json(['code' => 500, 'msg' => '初始数据失败: ' . $sql_statement . ' -> ' . $exception->getMessage()]);
                     }
                 }
@@ -218,6 +221,7 @@ class Install
             try {
                 $conn->exec($AdminSql);
             } catch (Exception $exception) {
+                file_put_contents(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'install_error.log', "Admin Error: " . $exception->getMessage() . "\n", FILE_APPEND);
                 return $this->json(['code' => 500, 'msg' => '管理员添加失败: ' . $exception->getMessage()]);
             }
             $this->output("添加管理员成功...", true);
