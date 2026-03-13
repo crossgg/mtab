@@ -66,7 +66,14 @@ class Install
     function connect($form, $tableName = null)
     {
         // 对于 SQLite，直接检查是否可以创建或写入 data/mtab.db
-        $dbPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mtab.db';
+        $dataDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data';
+        if (!is_dir($dataDir)) {
+            @mkdir($dataDir, 0777, true);
+        }
+        if (!is_writable($dataDir)) {
+            throw new Exception("目录无写入权限，如果是Docker映射，请宿主机执行 chmod 777 data", 500);
+        }
+        $dbPath = $dataDir . DIRECTORY_SEPARATOR . 'mtab.db';
         try {
             $pdo = new PDO('sqlite:' . $dbPath);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
