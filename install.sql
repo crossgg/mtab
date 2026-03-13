@@ -45,9 +45,7 @@ alter table card
 alter table card
     add dict_option longtext null ;
 
-alter table card
-    add constraint card_pk
-        unique (name_en);
+create unique index card_pk on card (name_en);
 
 create index card_name_en_index
     on card (name_en);
@@ -376,13 +374,9 @@ alter table user
 alter table user
     add group_id bigint default 0 null;
 
-alter table user
-    add constraint user_pk
-        unique (mail);
+create unique index user_pk on user (mail);
 
-alter table user
-    add constraint user_pk_2
-        unique (qq_open_id);
+create unique index user_pk_2 on user (qq_open_id);
 
 
 
