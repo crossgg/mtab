@@ -19,19 +19,19 @@ alter table card
     add version int default 0 null;
 
 alter table card
-    add tips varchar(255) null comment '说明';
+    add tips varchar(255) null;
 
 alter table card
-    add create_time datetime null comment '添加时间';
+    add create_time datetime null;
 
 alter table card
-    add src text null comment 'logo';
+    add src text null;
 
 alter table card
-    add url varchar(255) null comment '卡片地址';
+    add url varchar(255) null;
 
 alter table card
-    add `window` varchar(255) null comment '窗口地址';
+    add `window` varchar(255) null;
 
 alter table card
     add update_time datetime null;
@@ -40,10 +40,10 @@ alter table card
     add install_num int default 0 null;
 
 alter table card
-    add setting varchar(200) null comment '设置页面的url';
+    add setting varchar(200) null;
 
 alter table card
-    add dict_option longtext null comment '配置的参数';
+    add dict_option longtext null;
 
 CREATE UNIQUE INDEX card_pk ON card (name_en);
 
@@ -80,13 +80,13 @@ alter table file
     add create_time datetime null;
 
 alter table file
-    add size double default 0 null comment '尺寸';
+    add size double default 0 null;
 
 alter table file
-    add mime_type varchar(100) null comment '文件类型';
+    add mime_type varchar(100) null;
 
 alter table file
-    add hash varchar(100) null comment '文件哈希';
+    add hash varchar(100) null;
 
 
 #创建history数据表
@@ -106,7 +106,7 @@ alter table history
     add link longtext null;
 
 alter table history
-    add create_time datetime null comment '创建时间';
+    add create_time datetime null;
 
 
 #创建link数据表
@@ -121,7 +121,7 @@ create index link_user_id_index
 
 
 alter table link
-    add update_time datetime null comment '更新时间';
+    add update_time datetime null;
 
 alter table link
     add link longtext null;
@@ -132,17 +132,16 @@ alter table link
 create table if not exists link_folder
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT
-        primary key
 );
 
 alter table link_folder
-    add name varchar(50) null comment '分类名称';
+    add name varchar(50) null;
 
 alter table link_folder
     add sort int default 0 null;
 
 alter table link_folder
-    add group_ids varchar(200) default '0' null comment '可见用户分组';
+    add group_ids varchar(200) default '0' null;
 
 #创建link_store数据表
 
@@ -175,37 +174,37 @@ alter table linkstore
     add hot bigint default 0 null;
 
 alter table linkstore
-    add area varchar(20) default '' null comment '专区';
+    add area varchar(20) default '' null;
 
 alter table linkstore
-    add tips varchar(255) null comment '介绍';
+    add tips varchar(255) null;
 
 alter table linkstore
     add domain varchar(255) null;
 
 alter table linkstore
-    add app int default 0 null comment '是否app';
+    add app int default 0 null;
 
 alter table linkstore
-    add install_num int default 0 null comment '安装量';
+    add install_num int default 0 null;
 
 alter table linkstore
-    add bgColor varchar(30) null comment '背景颜色';
+    add bgColor varchar(30) null;
 
 alter table linkstore
-    add vip int default 0 null comment '是否会员可见 0所有人 1=会员';
+    add vip int default 0 null;
 
 alter table linkstore
-    add custom text null comment '自定义配置';
+    add custom text null;
 
 alter table linkstore
-    add user_id int null comment '用户id';
+    add user_id int null;
 
 alter table linkstore
-    add status int default 1 null comment '状态 1=展示 0=待审核';
+    add status int default 1 null;
 
 alter table linkstore
-    add group_ids varchar(200) default '0' null comment '可见用户分组';
+    add group_ids varchar(200) default '0' null;
 
 
 #创建note数据表
@@ -251,25 +250,25 @@ create table if not exists search_engine
 );
 
 alter table search_engine
-    add name varchar(50) null comment '名称';
+    add name varchar(50) null;
 
 alter table search_engine
-    add icon varchar(255) null comment '图标 128x128';
+    add icon varchar(255) null;
 
 alter table search_engine
-    add url varchar(255) null comment '跳转url';
+    add url varchar(255) null;
 
 alter table search_engine
-    add sort int default 0 null comment '排序';
+    add sort int default 0 null;
 
 alter table search_engine
-    add create_time datetime null comment '添加时间';
+    add create_time datetime null;
 
 alter table search_engine
-    add status int default 0 null comment '状态 0=关闭 1=启用';
+    add status int default 0 null;
 
 alter table search_engine
-    add tips varchar(250) null comment '搜索引擎介绍';
+    add tips varchar(250) null;
 
 
 #创建setting表
@@ -321,7 +320,7 @@ alter table token
     add user_agent tinytext null;
 
 alter table token
-    add access_token varchar(200) null comment 'qq的令牌';
+    add access_token varchar(200) null;
 
 
 #创建user表
@@ -334,7 +333,7 @@ create table if not exists user
 );
 
 alter table user
-    add avatar varchar(255) null comment '头像';
+    add avatar varchar(255) null;
 
 alter table user
     add mail varchar(50) null;
@@ -346,10 +345,10 @@ alter table user
     add create_time datetime null;
 
 alter table user
-    add login_ip varchar(100) null comment '登录IP';
+    add login_ip varchar(100) null;
 
 alter table user
-    add register_ip varchar(100) null comment '注册IP';
+    add register_ip varchar(100) null;
 
 alter table user
     add manager int default 0 null;
@@ -358,28 +357,28 @@ alter table user
     add login_fail_count int default 0 null;
 
 alter table user
-    add login_time datetime null comment '登录时间';
+    add login_time datetime null;
 
 alter table user
-    add qq_open_id varchar(200) null comment 'qq开放平台Id';
+    add qq_open_id varchar(200) null;
 
 alter table user
-    add nickname varchar(200) null comment '昵称';
+    add nickname varchar(200) null;
 
 alter table user
-    add status int default 0 null comment '用户账号状态 0正常 1冻结';
+    add status int default 0 null;
 
 alter table user
-    add active date null comment '今日是否活跃';
+    add active date null;
 
 alter table user
     add group_id bigint default 0 null;
 
 alter table user
-    add wx_open_id varchar(200) null comment '微信开放平台id';
+    add wx_open_id varchar(200) null;
 
 alter table user
-    add wx_unionid varchar(200) null comment '微信开放平台唯一id';
+    add wx_unionid varchar(200) null;
 
 create index user_wx_open_id_index
     on user (wx_open_id);
@@ -413,25 +412,25 @@ create table if not exists wallpaper
 );
 
 alter table wallpaper
-    add type int null comment '1=folder；0=assets';
+    add type int null;
 
 alter table wallpaper
-    add folder int null comment '0';
+    add folder int null;
 
 alter table wallpaper
-    add mime int default 0 null comment '文件类型0=images，1=video';
+    add mime int default 0 null;
 
 alter table wallpaper
-    add url text null comment '图片地址';
+    add url text null;
 
 alter table wallpaper
-    add cover text null comment '封面';
+    add cover text null;
 
 alter table wallpaper
     add create_time datetime null;
 
 alter table wallpaper
-    add name varchar(200) null comment '标题';
+    add name varchar(200) null;
 
 alter table wallpaper
     add sort int default 999 null;
@@ -442,16 +441,16 @@ create table user_group (
 );
 
 alter table user_group
-    add name varchar(50) not null comment '分组名称';
+    add name varchar(50) not null;
 
 alter table user_group
-    add create_time datetime null comment '创建时间';
+    add create_time datetime null;
 
 alter table user_group
-    add sort int default 0 null comment '排序';
+    add sort int default 0 null;
 
 alter table user_group
-    add default_user_group int default 0 null comment '是否为默认用户注册的分组';
+    add default_user_group int default 0 null;
 
 ##创建结束
 
@@ -467,7 +466,7 @@ create table if not exists plugins_todo
 
 
 alter table plugins_todo
-    add status int default 0 null comment '状态1=完成，0=未完成';
+    add status int default 0 null;
 
 alter table plugins_todo
     add user_id int null;
@@ -482,10 +481,10 @@ alter table plugins_todo
     add todo text(1000) null;
 
 alter table plugins_todo
-    add weight int null comment '重要程度 1-6 颜色划分';
+    add weight int null;
 
 alter table plugins_todo
-    add folder varchar(20) null comment 'today=今天；week=最近七天；其他正常';
+    add folder varchar(20) null;
 
 create index plugins_todo_user_id_index
     on plugins_todo (user_id);
@@ -499,7 +498,7 @@ create table if not exists plugins_todo_folder
 );
 
 alter table plugins_todo_folder
-    add column user_id int null comment '用户';
+    add column user_id int null;
 
 alter table plugins_todo_folder
     add column name varchar(30) null;
@@ -517,49 +516,46 @@ create table if not exists ai
     id INTEGER PRIMARY KEY AUTOINCREMENT
 );
 
-alter table ai
-    add column id INTEGER PRIMARY KEY AUTOINCREMENT;
+
 
 alter table ai
-    add column message longtext null comment '消息';
+    add column message longtext null;
 
 alter table ai
-    add column role varchar(100) null comment '角色';
+    add column role varchar(100) null;
 
 alter table ai
-    add column create_time datetime null comment '时间';
+    add column create_time datetime null;
 
 alter table ai
-    add column dialogue_id bigint null comment '对话关联id';
+    add column dialogue_id bigint null;
 
 alter table ai
-    add column ai_id varchar(255) null comment 'ai的对话id';
+    add column ai_id varchar(255) null;
 
 alter table ai
-    add column user_id int null comment '用户id';
+    add column user_id int null;
 
 alter table ai
-    add reasoning_content longtext null comment '推理结果';
+    add reasoning_content longtext null;
 
 #创建对话记录表
 
 create table if not exists dialogue
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT
-        primary key
 );
 
-alter table dialogue
-    add column id INTEGER PRIMARY KEY AUTOINCREMENT;
+
 
 alter table dialogue
-    add column title varchar(255) null comment '提取首次聊天记录内容作为标题';
+    add column title varchar(255) null;
 
 alter table dialogue
-    add column create_time datetime null comment '创建时间';
+    add column create_time datetime null;
 
 alter table dialogue
-    add column mode_id int null comment '上次对话的模型的ID';
+    add column mode_id int null;
 
 alter table dialogue
     add user_id int null;
@@ -568,49 +564,47 @@ alter table dialogue
 create table if not exists ai_model
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT
-        primary key
 );
 
 
 -- 添加字段：name
 alter table ai_model
-    add column name varchar(255) null comment '模型名称';
+    add column name varchar(255) null;
 
 -- 添加字段：tips
 alter table ai_model
-    add column tips varchar(255) null comment '模型介绍';
+    add column tips varchar(255) null;
 
 -- 添加字段：api_host
 alter table ai_model
-    add column api_host varchar(255) null comment 'api网关';
+    add column api_host varchar(255) null;
 
 -- 添加字段：sk
 alter table ai_model
-    add column sk varchar(255) not null comment '密钥';
+    add column sk varchar(255) not null;
 
 -- 添加字段：model
 alter table ai_model
-    add column model varchar(255) null comment '模型类型';
+    add column model varchar(255) null;
 
 -- 添加字段：system_content
 alter table ai_model
-    add column system_content text null comment '默认的指令';
+    add column system_content text null;
 
 -- 添加字段：create_time
 alter table ai_model
-    add column create_time datetime null comment '创建时间';
+    add column create_time datetime null;
 
 -- 添加字段：user_id
 alter table ai_model
-    add column user_id int null comment '用户ID';
+    add column user_id int null;
 
 -- 添加字段：status
 alter table ai_model
-    add column status int default 1 null comment '状态1开启0禁用';
+    add column status int default 1 null;
 
 -- 设置主键约束
-alter table ai_model
-    add primary key (id);
+
 
 
 -- 插入 '今天吃什么' 记录（如果不存在）
@@ -622,7 +616,7 @@ SELECT '今天吃什么',
        '/plugins/food/static/ico.png',
        '/plugins/food/card',
        '/plugins/food/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'food');
@@ -646,7 +640,7 @@ SELECT '天气',
        '/plugins/weather/static/ico.png',
        '/plugins/weather/card',
        '/plugins/weather/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'weather');
@@ -670,7 +664,7 @@ SELECT '电子木鱼',
        '/plugins/muyu/static/ico.png',
        '/plugins/muyu/card',
        '/plugins/muyu/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'muyu');
@@ -694,7 +688,7 @@ SELECT '热搜',
        '/plugins/topSearch/static/ico.png',
        '/plugins/topSearch/card',
        '/plugins/topSearch/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'topSearch');
@@ -718,7 +712,7 @@ SELECT '记事本',
        '/plugins/noteApp/static/ico.png',
        '/plugins/noteApp/card',
        '/noteApp'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'noteApp');
@@ -742,7 +736,7 @@ SELECT '每日诗词',
        '/plugins/poetry/static/ico.png',
        '/plugins/poetry/card',
        '/plugins/poetry/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'poetry');
@@ -766,7 +760,7 @@ SELECT '日历',
        '/plugins/calendar/static/ico.png',
        '/plugins/calendar/card',
        '/plugins/calendar/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'calendar');
@@ -790,7 +784,7 @@ SELECT '待办事项',
        '/plugins/todo/static/ico.png',
        '/plugins/todo/card',
        '/plugins/todo/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'todo');
@@ -814,7 +808,7 @@ SELECT '倒计时',
        '/plugins/countdown/static/ico.png',
        '/plugins/countdown/card',
        '/plugins/countdown/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'countdown');
@@ -838,7 +832,7 @@ SELECT '纪念日',
        '/plugins/commemorate/static/ico.png',
        '/plugins/commemorate/card',
        '/plugins/commemorate/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'commemorate');
@@ -856,7 +850,7 @@ WHERE name_en = 'commemorate';
 -- 插入 'AI助手' 记录（如果不存在）
 INSERT INTO card (name, name_en, version, tips, src, url, `window`)
 SELECT 'AI助手', 'ai', 1, '您的随身AI助手', '/plugins/ai/static/ico.png', '/plugins/ai/card', '/plugins/ai/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'ai');
@@ -880,7 +874,7 @@ SELECT '图片格式转换',
        '/plugins/imageConversion/static/ico.png',
        '/plugins/imageConversion/card',
        '/plugins/imageConversion/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'imageConversion');
@@ -905,7 +899,7 @@ SELECT '金额换算',
        '/static/app/amountConversion/ico.svg',
        '/plugins/amountConversion/card',
        '/plugins/amountConversion/window'
-FROM dual
+ 
 WHERE NOT EXISTS (SELECT 1
                   FROM card
                   WHERE name_en = 'amountConversion');
