@@ -2,12 +2,12 @@ version: '3'
 services:
   mTab:
     image: ghcr.io/crossgg/mtab:latest
-    container_name: mTabServers
+    container_name: mTab
     ports:
-      - "3321:80"
+      - "9200:80"
     volumes:
-      - ./:/app
-      - ./data:/app/data
+      - ./app:/app
+    #  - ./data:/app/data
     environment:
       ADMIN_USER: admin
       ADMIN_PASSWORD: admin
