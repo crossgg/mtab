@@ -4,14 +4,14 @@ ini_set('memory_limit', '500M');
 
 class Upgrade2
 {
-    protected string $archiveFile = ""; //升级文件地址
-    protected string $extractPath = ""; //解压目录地址
-    protected string $root_path = ""; //程序根目录
-    public string $update_download_url = ""; //升级zip文件下载地址
-    public string $update_sql_url = ""; //升级sql脚本文件地址
-    public string $update_script = ""; //升级后执行的脚本地址
-    protected bool $isLog = false;
-    protected array $noMove = [];
+    protected  $archiveFile = ""; //升级文件地址
+    protected  $extractPath = ""; //解压目录地址
+    protected  $root_path = ""; //程序根目录
+    public  $update_download_url = ""; //升级zip文件下载地址
+    public  $update_sql_url = ""; //升级sql脚本文件地址
+    public  $update_script = ""; //升级后执行的脚本地址
+    protected  $isLog = false;
+    protected  $noMove = [];
     //构造方法初始化一些数据
     function __construct($update_download_url = null, $update_sql_url = null, $update_script = null)
     {
@@ -242,7 +242,7 @@ class Upgrade2
     function copyDir($source, $dest)
     {
         if (!is_dir($dest)) {
-            mkdir($dest, 0777, true);
+            mkdir($dest, 0755, true);
         }
         $files = scandir($source);
         foreach ($files as $file) {

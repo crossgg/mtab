@@ -1,8 +1,8 @@
 <?php
 //程序版本号，请勿修改
-const app_version = '2.4.3';
+const app_version = '2.9.5';
 //程序内部更新版本代码，请勿修改
-const app_version_code = 243;
+const app_version_code = 295;
 // 应用公共文件
 function validateEmail($email): bool
 {
@@ -81,7 +81,7 @@ function modifyImageUrls($htmlContent, $newBaseUrl): string
         foreach ($images as $img) {
             $oldSrc = $img->getAttribute('src');
             if (!preg_match('/^http/', $oldSrc)) {
-                $newSrc = $newBaseUrl . $oldSrc;
+                $newSrc = $newBaseUrl . joinPath('/',$oldSrc);
                 $img->setAttribute('src', $newSrc);
             }
         }
@@ -122,4 +122,29 @@ function removeImagesUrls($htmlContent, $newBaseUrl)
     } catch (Exception $e) {
         return $htmlContent;
     }
+}
+
+function getFileExtByContent($path): string
+{
+    if (!file_exists($path) || !is_readable($path)) {
+        throw new InvalidArgumentException("File does not exist or is not readable: {$path}");
+    }
+
+    $info = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($info, $path);
+    finfo_close($info);
+
+    $supportedMimeTypes = [
+        'image/png' => 'png',
+        'image/jpeg' => 'jpg',
+        'image/jpg' => 'jpg',
+        'image/webp' => 'webp',
+        'image/gif' => 'gif',
+        'image/svg+xml' => 'svg',
+        'application/pdf' => 'pdf',
+        'text/plain' => 'txt',
+        // 可继续扩展其他 MIME 类型
+    ];
+
+    return $supportedMimeTypes[$mimeType] ?? 'unknown';
 }

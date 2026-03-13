@@ -9,6 +9,7 @@ use app\model\SettingModel;
 use DOMDocument;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use think\Exception;
 use think\facade\Cache;
 use think\facade\Filesystem;
 use think\facade\View;
@@ -16,37 +17,11 @@ use think\helper\Str;
 
 class Api extends BaseController
 {
+
     public function site(): \think\response\Json
     {
-        return $this->success("ok", [
-            'email' => $this->systemSetting('email', ''),
-            'qqGroup' => $this->systemSetting("qqGroup", ''),
-            'beianMps' => $this->systemSetting("beianMps", ''),
-            'copyright' => $this->systemSetting("copyright", ''),
-            "recordNumber" => $this->systemSetting("recordNumber", ''),
-            "mobileRecordNumber" => $this->systemSetting('mobileRecordNumber', '0'),
-            "auth" => $this->auth,
-            "logo" => $this->systemSetting('logo', ''),
-            "qq_login" => $this->systemSetting('qq_login', '0'),
-            "loginCloseRecordNumber" => $this->systemSetting('loginCloseRecordNumber', '0'),
-            "is_push_link_store" => $this->auth ? $this->systemSetting('is_push_link_store', '0') : '0',
-            "is_push_link_store_tips" => $this->systemSetting('is_push_link_store_tips', '0'),
-            "is_push_link_status" => $this->systemSetting("is_push_link_status", '0'),
-            'google_ext_link' => $this->systemSetting("google_ext_link", ''),
-            'edge_ext_link' => $this->systemSetting("edge_ext_link", ''),
-            'local_ext_link' => $this->systemSetting("local_ext_link", ''),
-            "customAbout" => $this->systemSetting("customAbout", ''),
-            "user_register" => $this->systemSetting("user_register", '0', true),
-            "tip" => [
-                "ds_status" => $this->systemSetting('ds_status', '0', true),
-                "ds_template" => $this->systemSetting('ds_template', 'org', true),
-                "ds_alipay_img" => $this->systemSetting('ds_alipay_img', '', true),
-                "ds_wx_img" => $this->systemSetting('ds_wx_img', '', true),
-                "ds_custom_url" => $this->systemSetting("ds_custom_url", '', true),
-                'ds_title' => $this->systemSetting('ds_title', '', true),
-                'ds_tips' => $this->systemSetting('ds_tips', '', true)
-            ]
-        ]);
+
+        return $this->success("ok", SettingModel::siteConfig());
     }
 
     public function background(): \think\response\File
@@ -251,25 +226,22 @@ class Api extends BaseController
     {
         $icons = [];
         $iconSelectors = [
-            'link[rel=icon]',
-            'link[rel=shortcut icon]',
-            'link[rel=apple-touch-icon]',
-            'link[rel=apple-touch-icon-precomposed]',
-            'link[rel=mask-icon]'
+            'icon',
+            'shortcut',
+            'shortcut icon',
+            'apple-touch-icon',
+            'apple-touch-icon-precomposed',
+            'mask-icon'
         ];
-
-        foreach ($iconSelectors as $selector) {
-            foreach ($dom->getElementsByTagName('link') as $icon) {
-                if (in_array($icon->getAttribute('rel'), array_map('trim', $iconSelectors))) {
-                    $href = $icon->getAttribute('href');
-                    if ($this->hasOnlyPath($href)) {
-                        $href = rtrim($baseUrl, '/') . '/' . ltrim($href, '/');
-                    }
-                    $icons[] = ['href' => $href];
+        foreach ($dom->getElementsByTagName('link') as $icon) {
+            if (in_array($icon->getAttribute('rel'), array_map('trim', $iconSelectors))) {
+                $href = $icon->getAttribute('href');
+                if ($this->hasOnlyPath($href[0])) {
+                    $href = rtrim($baseUrl, '/') . '/' . ltrim($href, '/');
                 }
+                $icons[] = ['href' => $href];
             }
         }
-
         return $icons;
     }
 
@@ -282,27 +254,25 @@ class Api extends BaseController
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 ]
             ]);
-            $contentType = $response->getHeaderLine('Content-Type');
+            $contentType = strtolower($response->getHeaderLine('Content-Type'));
+            $contentType = explode(';', $contentType)[0]; // 去除charset等附加信息
+            $allowedMimes = [
+                'image/png' => 'png',
+                'image/jpeg' => 'jpg',
+                'image/x-icon' => 'ico',
+                'image/svg+xml' => 'svg',
+            ];
 
-            // 根据 content-type 确定文件格式
-            if (preg_match('/(png|jpg|jpeg|x-icon|svg\+xml)$/i', $contentType, $matches)) {
-                $fileFormats = [
-                    'png' => 'png',
-                    'jpg' => 'jpg',
-                    'jpeg' => 'jpeg',
-                    'x-icon' => 'ico',
-                    'svg+xml' => 'svg',
-                ];
-                $fileFormat = strtolower($matches[1]);
-                $iconPath = $this->downloadFile($iconHref, md5($realUrl) . '.' . $fileFormats[$fileFormat]);
-                return $cdn . $iconPath;
+            if (!isset($allowedMimes[$contentType])) {
+                return '';
             }
+            $fileExt = $allowedMimes[$contentType];
+            $iconPath = $this->downloadFile($iconHref, md5($realUrl) . '.' . $fileExt);
+            return $cdn . $iconPath;
         } catch (\Exception $e) {
             // 直接返回失败
             return '';
         }
-
-        return '';
     }
 
     private function fetchFavicon($realUrl, $cdn): string
@@ -317,8 +287,10 @@ class Api extends BaseController
             ]);
             $status = $response->getStatusCode();
             if ($status === 200) {
-                $iconPath = $this->downloadFile($faviconUrl, md5($realUrl) . '.ico');
-                return $cdn . $iconPath;
+                if ($response->getHeaderLine("Content-Type") == "image/x-icon" || $response->getHeaderLine("Content-Type") == "image/vnd.microsoft.icon") {
+                    $iconPath = $this->downloadFile($faviconUrl, md5($realUrl) . '.ico');
+                    return $cdn . $iconPath;
+                }
             }
         } catch (\Exception $e) {
             // 直接返回失败
@@ -365,6 +337,10 @@ class Api extends BaseController
 
     function upload(): \think\response\Json
     {
+        //检查是否存在fileinfo扩展
+        if (!extension_loaded('fileinfo')) {
+            return $this->error('请安装fileinfo扩展后重新尝试！');
+        }
         $user = $this->getUser();
         if (!$user) {
             if ($this->systemSetting('touristUpload') !== '1') {
@@ -374,9 +350,11 @@ class Api extends BaseController
         }
         $type = $this->request->header("Up-Type", '');
         $file = $this->request->file('file');
+
         if (empty($file)) {
             return $this->error('not File');
         }
+
         $calc = $this->request->header("Calc");
         $maxSize = (float)$this->systemSetting('upload_size', '2');
         if ($file->getSize() > 1024 * 1024 * $maxSize) {
@@ -395,7 +373,7 @@ class Api extends BaseController
                 if ($type == 'icon' || $type == 'avatar') {
                     $fp = joinPath(public_path(), $filePath);
                     $image = new \ImageBack($fp);
-                    $image->resize(144, 0)->save($fp);
+                    $image->resize(400, 0)->save($fp);
                 } else if ($type == 'AdminBackground') {
                     $minPath = joinPath($savePath, "/min_$fileName");
                     $fp = joinPath(public_path(), $filePath);
@@ -413,7 +391,7 @@ class Api extends BaseController
                 }
                 $filePath = FileModel::addFile($filePath, $user['user_id'] ?? null);
                 return $this->success(['url' => $filePath, "minUrl" => $minPath, 'filename' => $fileName]);
-            } catch (\think\exception\ValidateException $e) {
+            } catch (\Exception $e) {
                 return $this->error($e->getMessage());
                 // 验证失败，给出错误提示
                 // ...
@@ -426,6 +404,8 @@ class Api extends BaseController
     {
         $user = $this->getAdmin();
         $file = $this->request->file('file');
+        $disk = $this->request->post("disk", "images");
+        $dir = $this->request->post("dir", "");
         if (empty($file)) {
             return $this->error('not File');
         }
@@ -435,13 +415,17 @@ class Api extends BaseController
         // 验证文件并保存
         try {
             // 构建保存路径
-            $savePath = '/images/' . date('Y/m/d');
+            $savePath = "/$disk/";
+            if ($dir) {
+                $savePath = joinPath($savePath, $dir);
+            } else {
+                $savePath .= date('Y/m/d');
+            }
             $hash = Str::random(32);
             $fileName = $hash . '.' . $file->getOriginalExtension();
-            $filePath = Filesystem::disk('images')->putFileAs($savePath, $file, $fileName);
-            $cdn = $this->systemSetting('assets_host', '/', true);
+            $filePath = Filesystem::disk($disk)->putFileAs($savePath, $file, $fileName);
             $path = FileModel::addFile($filePath, $user['user_id'] ?? null);
-            return $this->success(['url' => $cdn . $path]);
+            return $this->success(['url' => $path]);
         } catch (\think\exception\ValidateException $e) {
             // 验证失败，给出错误提示
             // ...
@@ -501,5 +485,14 @@ class Api extends BaseController
             FileModel::delFile($url);
         }
         return $this->success("删除完毕");
+    }
+
+    function wx_login_info(): \think\response\Json
+    {
+        $data = [
+            'appid' => $this->systemSetting('wx_login_appid'),
+            'redirect_uri' => $this->request->scheme() . '://' . $this->request->host(true)
+        ];
+        return $this->success('ok', $data);
     }
 }

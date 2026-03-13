@@ -29,12 +29,15 @@ class Index extends BaseController
 
     private function initAuth()
     {
-        $authCode = $this->systemSetting('authCode', '', true);
+        $authCode = SettingModel::where("keys", 'authCode')->value("value");
         if (strlen($authCode) == 0) {
             $authCode = env('authCode', '');
         }
         $this->authCode = $authCode;
-        $this->authService = $this->systemSetting('authServer', 'https://auth.mtab.cc', true);
+        $this->authService = SettingModel::where("keys", 'authServer')->value("value");
+        if (!$this->authService) {
+            $this->authService = "https://auth.mtab.cc";
+        }
     }
 
 
@@ -122,6 +125,7 @@ class Index extends BaseController
                 return $this->success($info);
             }
         } catch (\Exception $e) {
+            print_r($e);
         }
         $info['remote'] = [
             "auth" => (bool)$this->authCode
@@ -363,6 +367,24 @@ class Index extends BaseController
             }
             $res = LinkStoreModel::whereOr([["name", 'in', $arrName], ['url', 'in', $arrUrl]])->select();
             return json(['code' => 1, 'msg' => 'ok', 'data' => $json['data'], 'local' => $res]);
+        }
+        return $this->success('获取失败');
+    }
+
+    function getBindList()
+    {
+        is_demo_mode(true);
+        $this->getAdmin();
+        $this->initAuth();
+        $result = \Axios::http()->post($this->authService . '/registerIp', [
+            'timeout' => 15,
+            'form_params' => [
+                'authorization_code' => $this->authCode
+            ]
+        ]);
+        if ($result->getStatusCode() == 200) {
+            $result = $result->getBody()->getContents();
+            return json_decode($result);
         }
         return $this->success('获取失败');
     }

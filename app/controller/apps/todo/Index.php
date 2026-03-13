@@ -12,7 +12,7 @@ class Index extends PluginsBase
     {
         $user = $this->getUser(true);
         $list = PluginsToDoFolderModel::where('user_id', $user['user_id'])->order("create_time")->select()->toArray();
-        $toDoList = PluginsToDoModel::where('user_id', $user['user_id'])->order('create_time', 'desc')->select()->toArray();
+        $toDoList = PluginsToDoModel::where('user_id', $user['user_id'])->order('create_time', 'asc')->select()->toArray();
         return $this->success("ok", ['folder' => $list, 'todo' => $toDoList]);
     }
 

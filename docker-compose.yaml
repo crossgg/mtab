@@ -1,14 +1,13 @@
-version: '3'
 services:
   mTab:
-    image: ghcr.io/crossgg/mtab:latest
-    container_name: mTab
+    image: itushan/php74:1.3
+    container_name: mTabServers
     ports:
-      - "9200:80"
+      - "3321:80"
     volumes:
-      - ./app:/app
-    #  - ./data:/app/data
+      - ./:/app
+      - ./data:/app/data
     environment:
       ADMIN_USER: admin
       ADMIN_PASSWORD: admin
-    restart: unless-stopped
+    restart: always

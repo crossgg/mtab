@@ -32,24 +32,6 @@ class Tabbar extends BaseController
     public function get(): \think\response\Json
     {
         $user = $this->getUser();
-        if ($user) {
-            $data = TabbarModel::where("user_id",$user['user_id'])->find();
-            if ($data) {
-                return $this->success('ok', $data['tabs']);
-            }
-        }
-        $config = $this->systemSetting('defaultTab', '/static/defaultTab.json', true);
-        if ($config) {
-            $fp = joinPath(public_path(), $config);
-            if (!file_exists($fp)) {
-                $fp = public_path() . 'static/defaultTab.json';
-            }
-            if (file_exists($fp)) {
-                $file = file_get_contents($fp);
-                $json = json_decode($file, true);
-                return $this->success('ok', $json['tabbar'] ?? []);
-            }
-        }
-        return $this->success('ok', []);
+        return $this->success('ok', TabbarModel::getTabbar($user));
     }
 }

@@ -15,6 +15,9 @@ class ImageBack
     protected $process = true;
     protected $funName = "jpeg";
 
+    /**
+     * @throws Exception
+     */
     function __construct($filename)
     {
         $this->filename = $filename;
@@ -36,9 +39,13 @@ class ImageBack
         }
         if ($this->process) {
             $fun = 'imagecreatefrom' . $this->funName;
-            $this->source = $fun($filename);
-            $this->width = imagesx($this->source);
-            $this->height = imagesy($this->source);
+            try {
+                $this->source = $fun($filename);
+                $this->width = imagesx($this->source);
+                $this->height = imagesy($this->source);
+            } catch (Exception $exception) {
+                throw new Exception("不是有效的" . $this->funName . "文件类型");
+            }
         }
     }
 
@@ -58,7 +65,7 @@ class ImageBack
                 $this->croppedHeight = $this->height;
             }
             $this->cropped = imagecreatetruecolor($this->croppedWidth, $this->croppedHeight);
-            if ($this->funName == 'png'|| $this->funName == 'webp') {
+            if ($this->funName == 'png' || $this->funName == 'webp') {
                 // 将图像设置为支持 alpha 通道的模式
                 imagealphablending($this->cropped, false);
                 imagesavealpha($this->cropped, true);

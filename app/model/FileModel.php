@@ -20,10 +20,16 @@ class FileModel extends Model
         $hash = hash_file('md5', $originPath);
         $find = self::where('hash', $hash)->find();
         if ($find) {
-            if($find['path']!==$file){
-                unlink($originPath);
+            //如果文件不存在，就删除记录
+            if (!file_exists(joinPath(public_path(), $find['path']))) {
+                $find->delete();
+            } else {
+                //存在就返回数据库的路径
+                if ($find['path'] !== $file) {
+                    unlink($originPath);
+                }
+                return joinPath('/', $find['path']);
             }
-            return joinPath($find['path']);
         }
         if (file_exists($originPath)) {
             clearstatcache(true, $originPath);
@@ -35,7 +41,7 @@ class FileModel extends Model
             $info['hash'] = $hash;
             $info["mime_type"] = mime_content_type($originPath);
             self::insert($info);
-            return joinPath($info['path']);
+            return joinPath('/', $info['path']);
         }
         return false;
     }

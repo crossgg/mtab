@@ -1,6 +1,6 @@
 FROM alpine:3.13
 LABEL describe="tushan-mtab"
-LABEL author ="tushan<admin@mcecy.com>"
+LABEL author="tushan<itushan@mtab.cc>"
 
 WORKDIR /
 

@@ -1,5 +1,9 @@
 <?php
-function isAjaxRequest()
+//设置永不超时
+set_time_limit(0);
+//设置内存可以使用512MB
+ini_set('memory_limit', '512M');
+function isAjaxRequest(): bool
 {
     if (isset($_SERVER['HTTP_REFERER'])) {
         return true;
@@ -16,6 +20,14 @@ if (file_exists("./installed.lock")) {
     header("Location: /");
     exit;
 }
+
+//允许后台运行
+ini_set('max_execution_time', 0);
+//取消超时限制
+set_time_limit(0);
+//内存允许更大的
+ini_set('memory_limit', '512M');
+
 class Install
 {
     protected $defError = [
@@ -38,6 +50,14 @@ class Install
 
     function __construct()
     {
+    }
+
+    //内容，是否换行
+    function output($content, $is_enter = false)
+    {
+        $content = trim($content);
+        echo $content . "\n";
+        flush();
     }
 
     function json($arr)
@@ -123,7 +143,7 @@ class Install
         $data = json_decode(file_get_contents('php://input'), true);
         try {
             $conn = $this->connect($data);
-            $conn = null; // PDO 取消连接只需要置空
+            $conn = null;
             return $this->json(['code' => 200, 'msg' => '连接成功']);
         } catch (Exception $e) {
             return $this->json(['code' => 500, 'msg' => $e->getMessage()]);
@@ -132,6 +152,9 @@ class Install
 
     function install()
     {
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
         $form = json_decode(file_get_contents('php://input'), true);
         $database_type = $form['database_type'];
         $table_name = $form['table_name'];
@@ -152,15 +175,18 @@ class Install
                 unlink($dbPath);
             }
             $conn = $this->connect($form, $table_name);
+            $this->output("连接数据库成功...", true);
+            //数据库的格式内容数据
             $sql_file_content = file_get_contents('../install.sql');
-            // 剔除 # 或 -- 开头的注释行以防止 SQLite 语法错误
             $sql_file_content = preg_replace('/^\s*(?:#|--).*$/m', '', $sql_file_content);
             // 解析SQL文件内容并执行
             $sql_statements = explode(';', trim($sql_file_content));
+            $this->output("执行数据库建表SQL语句", true);
             foreach ($sql_statements as $sql_statement) {
                 if (!empty(trim($sql_statement))) {
                     try {
                         $conn->exec($sql_statement);
+                        $this->output("执行完成: " . mb_substr($sql_statement, 0, 30), true);
                     } catch (Exception $exception) {
                         return $this->json(['code' => 500, 'msg' => '建表失败: ' . $sql_statement . ' -> ' . $exception->getMessage()]);
                     }
@@ -169,12 +195,15 @@ class Install
             //默认的一些基础数据
             $sql_file_content = file_get_contents('../defaultData.sql');
             $sql_file_content = preg_replace('/^\s*(?:#|--).*$/m', '', $sql_file_content);
+            $this->output("导入默认的数据...", true);
             // 解析SQL文件内容并执行
             $sql_statements = explode(';', trim($sql_file_content));
+            $this->output("执行SQL语句", true);
             foreach ($sql_statements as $sql_statement) {
                 if (!empty(trim($sql_statement))) {
                     try {
                         $conn->exec($sql_statement);
+                        $this->output("执行完成: " . mb_substr($sql_statement, 0, 30), true);
                     } catch (Exception $exception) {
                         return $this->json(['code' => 500, 'msg' => '初始数据失败: ' . $sql_statement . ' -> ' . $exception->getMessage()]);
                     }
@@ -191,6 +220,7 @@ class Install
             } catch (Exception $exception) {
                 return $this->json(['code' => 500, 'msg' => '管理员添加失败: ' . $exception->getMessage()]);
             }
+            $this->output("添加管理员成功...", true);
             $conn = null;
         }
         $dbPathFromEnv = realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mtab.db';
@@ -211,14 +241,18 @@ class Install
                 
                 EOF;
         file_put_contents('../.env', $env);
+        $this->output("配置文件写入成功=><b style='color:red'>.env</b>", true);
         file_put_contents('./installed.lock', 'installed');
-        return $this->json(['code' => 200, 'msg' => '安装成功']);
+        $this->output("安装完成...", true);
+        return "\nmTabDONE";
     }
 }
 
 $handle = new Install();
-
-$path = $_GET['s'];
+$path = "/";
+if (isset($_GET['s'])) {
+    $path = $_GET['s'];
+}
 switch ($path):
     case '/testDb':
         echo $handle->testDb();
@@ -234,3 +268,4 @@ switch ($path):
         break;
 endswitch;
 exit;
+

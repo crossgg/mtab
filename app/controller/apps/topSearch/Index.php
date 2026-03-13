@@ -10,7 +10,7 @@ use think\facade\Cache;
 
 class Index extends PluginsBase
 {
-    protected $ttl = 180;
+    protected $ttl = 300;
 
     function __construct()
     {
@@ -27,7 +27,7 @@ class Index extends PluginsBase
     {
         $this->getAdmin();
         $list = $this->request->post("conf");
-        CardModel::saveConfigs("topSearch", ['conf'=>$list]);
+        CardModel::saveConfigs("topSearch", ['conf' => $list]);
         $this->clearRedisCache();
         return $this->success('保存成功');
     }
@@ -149,13 +149,7 @@ class Index extends PluginsBase
             if ($c) {
                 return $this->success('cache', $c);
             }
-            $result = \Axios::http()->request('get', 'https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all', [
-                'headers' => [
-                    'path' => '/x/web-interface/ranking/v2?',
-                    'authority' => 'api.bilibili.com',
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
-                ]
-            ]);
+            $result = \Axios::http()->request('get', 'https://api.bilibili.com/x/web-interface/ranking?jsonp=jsonp?rid=0&type=all&callback=__jp0');
             $result = $result->getBody()->getContents();
             $result = json_decode($result, true);
             if ($result['code'] == 0) {
@@ -167,7 +161,7 @@ class Index extends PluginsBase
                         }
                         $arr [] = array(
                             'title' => $v['title'],
-                            'hot' => $v['stat']['view'],
+                            'hot' => $v['video_review'],
                             'url' => 'https://www.bilibili.com/video/' . $v['bvid']//$v['short_link'] ?? $v['short_link_v2']
                         );
                     }
@@ -191,12 +185,17 @@ class Index extends PluginsBase
         } catch (ErrorException $e) {
 
         }
-        $result = \Axios::http()->request('get', 'https://weibo.com/ajax/statuses/hot_band');
+        $result = \Axios::http()->request('get', 'https://weibo.com/ajax/side/hotSearch', [
+            'headers' => [
+                'referer' => 'https://weibo.com/hot/search',
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+            ]
+        ]);
         $result = $result->getBody()->getContents();
         $result = json_decode($result, true);
         $arr = [];
         if ($result['ok'] == 1) {
-            $list = $result['data']['band_list'];
+            $list = $result['data']['realtime'];
             if (count($list) > 0) {
                 foreach ($list as $k => $v) {
                     $arr [] = array(
