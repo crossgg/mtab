@@ -36,7 +36,9 @@ class Install
         ]
     ];
 
-    function __construct() {}
+    function __construct()
+    {
+    }
 
     function json($arr)
     {
@@ -61,25 +63,17 @@ class Install
         }, $template);
     }
 
-    function connect($form, $tableName = null): mysqli
+    function connect($form, $tableName = null)
     {
-        //将上面的值提取到数据库配置中
-        $db_host = $form['db_host'];
-        $db_username = $form['db_username'];
-        $db_password = $form['db_password'];
-        $db_port = $form['db_port'];
-
-        $conn = @new mysqli($db_host, $db_username, $db_password, $tableName, $db_port);
-        if ($conn->connect_error) {
-            $errorCode = $conn->connect_errno; // 获取错误代码
-            // 检查 defError 中是否存在该错误代码
-            $errorMessage = isset($this->defError[$errorCode])
-                ? $this->defError[$errorCode]['reason']
-                : $conn->connect_error; // 如果不存在，返回原始错误信息
-            throw new Exception($errorMessage, 500);
+        // 对于 SQLite，直接检查是否可以创建或写入 data/mtab.db
+        $dbPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mtab.db';
+        try {
+            $pdo = new PDO('sqlite:' . $dbPath);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $pdo;
+        } catch (\PDOException $e) {
+            throw new Exception("SQLite 连接失败: " . $e->getMessage(), 500);
         }
-
-        return $conn;
     }
 
     function ext()
@@ -105,13 +99,16 @@ class Install
         if (extension_loaded('curl')) {
             $curl_ext = true;
         }
-        return $this->json(['code' => 200, 'data' => [
-            'php_version' => $php_version,
-            'fileinfo_ext' => $fileinfo_ext,
-            'zip_ext' => $zip_ext,
-            'mysqli_ext' => $mysqli_ext,
-            'curl_ext' => $curl_ext
-        ]]);
+        return $this->json([
+            'code' => 200,
+            'data' => [
+                'php_version' => $php_version,
+                'fileinfo_ext' => $fileinfo_ext,
+                'zip_ext' => $zip_ext,
+                'mysqli_ext' => $mysqli_ext,
+                'curl_ext' => $curl_ext
+            ]
+        ]);
     }
 
     function testDb()
@@ -119,7 +116,7 @@ class Install
         $data = json_decode(file_get_contents('php://input'), true);
         try {
             $conn = $this->connect($data);
-            $conn->close();
+            $conn = null; // PDO 取消连接只需要置空
             return $this->json(['code' => 200, 'msg' => '连接成功']);
         } catch (Exception $e) {
             return $this->json(['code' => 500, 'msg' => $e->getMessage()]);
@@ -143,13 +140,10 @@ class Install
             return $this->json(['code' => 500, 'msg' => $e->getMessage()]);
         }
         if ($database_type == 1) { //全新安装
-            $sql = "DROP DATABASE $table_name"; //删除原来的
-            $conn->query($sql);
-            $sql = "CREATE DATABASE $table_name"; //创建新的
-            if ($conn->query($sql) !== TRUE) {
-                return $this->json(['code' => 500, 'msg' => '数据表创建失败']);
+            $dbPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mtab.db';
+            if (file_exists($dbPath)) {
+                unlink($dbPath);
             }
-            $conn->close();
             $conn = $this->connect($form, $table_name);
             //数据库的格式内容数据
             $sql_file_content = file_get_contents('../install.sql');
@@ -158,7 +152,7 @@ class Install
             foreach ($sql_statements as $sql_statement) {
                 if (!empty($sql_statement)) {
                     try {
-                        $conn->query($sql_statement);
+                        $conn->exec($sql_statement);
                     } catch (Exception $exception) {
                     }
                 }
@@ -170,7 +164,7 @@ class Install
             foreach ($sql_statements as $sql_statement) {
                 if (!empty($sql_statement)) {
                     try {
-                        $conn->query($sql_statement);
+                        $conn->exec($sql_statement);
                     } catch (Exception $exception) {
                     }
                 }
@@ -178,25 +172,23 @@ class Install
             $admin_password = md5($admin_password);
             //添加默认管理员
             $AdminSql = ("
-                    INSERT INTO user (mail, password, create_time, login_ip, register_ip, manager, login_fail_count, login_time)
-                    VALUES ('$admin_email', '$admin_password', null, null, null, 1, DEFAULT, null);
+                    INSERT INTO user (mail, password, manager)
+                    VALUES ('$admin_email', '$admin_password', 1);
                  ");
-            $conn->query($AdminSql);
-            $conn->close();
+            $conn->exec($AdminSql);
+            $conn = null;
         }
+        $dbPathFromEnv = realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mtab.db';
         $env = <<<EOF
                 APP_DEBUG = false
                 
                 [APP]
                 
                 [DATABASE]
-                TYPE = mysql
-                HOSTNAME = {$db_host}
-                DATABASE = {$table_name}
-                USERNAME = {$db_username}
-                PASSWORD = {$db_password}
-                HOSTPORT =  {$db_port}
-                CHARSET = utf8mb4
+                DRIVER = sqlite
+                TYPE = sqlite
+                DATABASE = {$dbPathFromEnv}
+                CHARSET = utf8
                 DEBUG = false
                 
                 [CACHE]
