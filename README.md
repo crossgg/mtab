@@ -45,7 +45,7 @@ docker login ghcr.io -u crossgg -p <您的_GITHUB_PAT>
 docker pull ghcr.io/crossgg/mtab:latest
 ```
 
-部署命令： `docker run -itd --name mtab -p 9200:80 -v /opt/mtab:/app ghcr.io/crossgg/mtab:latest`
+部署命令： `docker run -itd --name mtab -p 9200:80 -v ./:/app ghcr.io/crossgg/mtab:latest`
 
 命令解释： 其中 9200 可改为你服务器的另外端口。 /opt/mtab 是挂载路径，容器内目录和端口必须是 80 和 /app，--name为自定义容器名称。
 
@@ -70,8 +70,8 @@ services:
       - "9200:80"
     volumes:
       - ./:/app
-      - ./data:/app/data
-    restart: always
+    #  - ./data:/app/data
+    restart: unless-stopped
 ```
 ## 预览图
 
