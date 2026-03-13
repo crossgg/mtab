@@ -46,7 +46,8 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: type=raw,value=latest
+          tags: |
+            type=raw,value=redis
 
       # 构建并推送到 GHCR
       - name: Build and push Docker image
