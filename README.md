@@ -1,5 +1,9 @@
 # 基于原来脚本作者代码吧mysql改为sql，移除了redis,个人使用占用资源更少
-https://github.com/tsxcw/mtab.git
+原作者：https://github.com/tsxcw/mtab.git
+
+修改后的镜像：`ghcr.io/crossgg/mtab:latest`
+
+
 
 
 ------------
