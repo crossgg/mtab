@@ -153,6 +153,8 @@ class Install
             }
             $conn = $this->connect($form, $table_name);
             $sql_file_content = file_get_contents('../install.sql');
+            // 剔除 # 或 -- 开头的注释行以防止 SQLite 语法错误
+            $sql_file_content = preg_replace('/^\s*(?:#|--).*$/m', '', $sql_file_content);
             // 解析SQL文件内容并执行
             $sql_statements = explode(';', trim($sql_file_content));
             foreach ($sql_statements as $sql_statement) {
@@ -166,6 +168,7 @@ class Install
             }
             //默认的一些基础数据
             $sql_file_content = file_get_contents('../defaultData.sql');
+            $sql_file_content = preg_replace('/^\s*(?:#|--).*$/m', '', $sql_file_content);
             // 解析SQL文件内容并执行
             $sql_statements = explode(';', trim($sql_file_content));
             foreach ($sql_statements as $sql_statement) {
