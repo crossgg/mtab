@@ -25,16 +25,16 @@ class LinkStore extends BaseController
 
         $list = LinkStoreModel::where($sql)->where('status', 1)->withoutField('user_id');
 
-        // 使用 find_in_set 匹配 area
+        // 使用 LIKE 匹配 area
         if ($area && $area != 0) {
-            $list = $list->whereRaw('find_in_set(?,area)', [$area]);
+            $list = $list->whereRaw("',' || area || ',' LIKE '%,' || ? || ',%'", [$area]);
         }
 
         // 将两个 whereOrRaw 条件组合在一起
         $list = $list->where(function ($query) use ($user) {
-            $query->whereRaw('find_in_set(0,group_ids)');
+            $query->whereRaw("',' || group_ids || ',' LIKE '%,0,%'");
             if ($user) {
-                $query->whereOrRaw('find_in_set(?,group_ids)', [$user['group_id']]);
+                $query->whereOrRaw("',' || group_ids || ',' LIKE '%,' || ? || ',%'", [$user['group_id']]);
             }
         });
 
@@ -50,18 +50,18 @@ class LinkStore extends BaseController
         $limit = $this->request->post('limit', 15);
         $name = $this->request->post('search.name', false);
         $area = $this->request->post('search.area', false);
-        $group_id = $this->request->post('search.group_id',false);
+        $group_id = $this->request->post('search.group_id', false);
         $sql = [];
         if ($name) {
             $sql[] = ['name|tips', 'like', '%' . $name . '%'];
         }
         $list = LinkStoreModel::with(['userInfo'])->where($sql);
-        //area需要使用find_in_set来匹配
+        //area需要使用LIKE匹配
         if ($area && $area != '全部') {
-            $list = $list->whereRaw("find_in_set(?,area)", [$area]);
+            $list = $list->whereRaw("',' || area || ',' LIKE '%,' || ? || ',%'", [$area]);
         }
-        if($group_id){
-            $list = $list->whereRaw('find_in_set(?,group_ids)', [$group_id]);
+        if ($group_id) {
+            $list = $list->whereRaw("',' || group_ids || ',' LIKE '%,' || ? || ',%'", [$group_id]);
         }
         $list = $list->order($this->request->post('sort.prop', 'id'), $this->request->post('sort.order', 'asc'))->paginate($limit);
         return json(["msg" => "ok", 'data' => $list, 'auth' => $this->auth]);
@@ -71,9 +71,9 @@ class LinkStore extends BaseController
     {
         $user = $this->getUser();
         $list = new LinkFolderModel();
-        $list = $list->whereOrRaw("find_in_set(0,group_ids)");
-        if ($user&&(int)$user['group_id'] != 0) {
-            $list = $list->whereOrRaw('find_in_set(?,group_ids)', [$user['group_id']]);
+        $list = $list->whereOrRaw("',' || group_ids || ',' LIKE '%,0,%'");
+        if ($user && (int) $user['group_id'] != 0) {
+            $list = $list->whereOrRaw("',' || group_ids || ',' LIKE '%,' || ? || ',%'", [$user['group_id']]);
         }
         return $this->success("ok", $list->order('sort', 'desc')->select());
     }
@@ -214,7 +214,7 @@ class LinkStore extends BaseController
                 $url = parse_url($url);
                 $url = $url['host'];
             }
-            $data = LinkStoreModel::whereRaw("FIND_IN_SET(?,domain)", [$url])->find();
+            $data = LinkStoreModel::whereRaw("',' || domain || ',' LIKE '%,' || ? || ',%'", [$url])->find();
             if ($data) {
                 return $this->success('ok', $data);
             }
@@ -255,9 +255,11 @@ class LinkStore extends BaseController
                 $result->delete();
                 Db::query(
                     "UPDATE linkstore
-                     SET area = TRIM(BOTH ',' FROM REPLACE(CONCAT(',', area, ','), ',$id,', ','))
-                     WHERE FIND_IN_SET(?, area) > 0;"
-                    , [$id]);
+                     SET area = TRIM(REPLACE(',' || area || ',', ',' || ? || ',', ','), ',')
+                     WHERE ',' || area || ',' LIKE '%,' || ? || ',%';"
+                    ,
+                    [$id, $id]
+                );
             }
         }
         return $this->success('处理完毕！');
@@ -283,7 +285,7 @@ class LinkStore extends BaseController
 
     function sortFolder(): \think\response\Json
     {
-        $sort = (array)$this->request->post();
+        $sort = (array) $this->request->post();
         foreach ($sort as $key => $value) {
             LinkFolderModel::where("id", $value['id'])->update(['sort' => $value['sort']]);
         }

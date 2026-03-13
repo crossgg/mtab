@@ -8,5 +8,6 @@ return [
         'repair' => 'app\command\repair',
         'repass' => 'app\command\repass',
         'upgrade' => 'app\command\upgrade',
+        'test:install' => \app\command\TestInstall::class,
     ],
 ];

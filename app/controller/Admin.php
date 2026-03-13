@@ -185,7 +185,7 @@ class Admin extends BaseController
         ];
         $dateSelect = $this->request->post('dateSelect', $defaultDate);
         $result = UserModel::whereBetweenTime('create_time', $dateSelect[0], $dateSelect[1]);  // 当前月
-        $result = $result->field('DATE_FORMAT(create_time, "%Y-%m-%d") as time, count(id) as total');
+        $result = $result->field('strftime("%Y-%m-%d", create_time) as time, count(id) as total');
         $result = $result->group('time')->select();
         return $this->success('ok', $this->render($result, $dateSelect[0], $dateSelect[1]));
     }
