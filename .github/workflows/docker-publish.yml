@@ -46,7 +46,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: type=raw,value=${{ github.event.inputs.tag }}
+          tags: type=raw,value=latest
 
       # 构建并推送到 GHCR
       - name: Build and push Docker image
