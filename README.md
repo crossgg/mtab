@@ -1,3 +1,8 @@
+# 基于原来脚本作者代码吧mysql改为sql，移除了redis,个人使用占用资源更少
+https://github.com/tsxcw/mtab.git
+
+
+------------
 # mTab新标签页
 
 ![logo](https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/192.png)
@@ -47,9 +52,8 @@ docker pull ghcr.io/crossgg/mtab:latest
 
 部署命令： `docker run -itd --name mtab -p 9200:80 -v ./app:/app ghcr.io/crossgg/mtab:latest`
 
-命令解释： 其中 9200 可改为你服务器的另外端口。 /opt/mtab 是挂载路径，容器内目录和端口必须是 80 和 /app，--name为自定义容器名称。
+命令解释： 其中 9200 可改为你服务器的另外端口。 ./app 是挂载路径，容器内目录和端口必须是 80 和 /app，--name为自定义容器名称。
 
-可选挂载说明：对于我们新增的 SQLite 架构支持，您可以多映射一个宿主机持久化目录到 `/app/data`，例如加一个 `-v /opt/mtab-data:/app/data`，这可以实现安全平滑的迁移。
 
 程序数据库安装： 部署完docker后访问您设置的端口，然后填写一些数据库配置后点击 安装 按钮即可等待安装完成， 注意的是容器部署下数据库地址请不要填写127.0.0.1,因为容器内127.0.0.1不指向宿主机网络。
 
@@ -64,13 +68,12 @@ version: '3'
 services:
   mtabServer:
     image: ghcr.io/crossgg/mtab:latest
-    container_name: mtabServer
+    container_name: mtab
     user: "${USER_ID}:${GROUP_ID}"
     ports:
       - "9200:80"
     volumes:
-      - ./:/app
-    #  - ./data:/app/data
+      - ./app:/app
     restart: unless-stopped
 ```
 ## 预览图
