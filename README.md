@@ -1,3 +1,4 @@
+# 基于原作者脚本去把mysql改为sql
 # mTab新标签页
 
 ![logo](https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/192.png)
@@ -63,14 +64,13 @@ docker pull ghcr.io/crossgg/mtab:latest
 version: '3'
 services:
   mtabServer:
-    image: ghcr.io/crossgg/mtab:latest
+    image: ghcr.io/crossgg/mtab:redis
     container_name: mtabServer
     user: "${USER_ID}:${GROUP_ID}"
     ports:
       - "9200:80"
     volumes:
       - ./:/app
-    #  - ./data:/app/data
     restart: unless-stopped
 ```
 ## 预览图
@@ -79,4 +79,5 @@ services:
 <img src="https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/2.png" width="50%"><img src="https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/3.png" width="50%">
 <img src="https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/4.png" width="33.3%"><img src="https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/5.png" width="33.3%"><img src="https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/6.png" width="33.3%">
 <img src="https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/8.png" width="50%"><img src="https://raw.githubusercontent.com/tsxcw/imagesHouse/itushan/mTabReadme/7.png" width="50%">
+
 
