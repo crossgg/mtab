@@ -180,6 +180,13 @@ class Install
             //数据库的格式内容数据
             $sql_file_content = file_get_contents('../install.sql');
             $sql_file_content = preg_replace('/^\s*(?:#|--).*$/m', '', $sql_file_content);
+            $sql_file_content = preg_replace("/(?i)\s+comment\s+'[^']*'/", '', $sql_file_content);
+            $sql_file_content = preg_replace("/(?i)INTEGER PRIMARY KEY AUTOINCREMENT\s+primary key/", 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql_file_content);
+            $sql_file_content = preg_replace("/(?i)alter table\s+\w+\s+add\s+column\s+id\s+INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT;/", '', $sql_file_content);
+            $sql_file_content = preg_replace("/(?i)alter table\s+\w+\s+add\s+primary key\s+\([^\)]+\);/", '', $sql_file_content);
+            $sql_file_content = preg_replace("/(?i)FROM\s+dual/", ' ', $sql_file_content);
+            $sql_file_content = preg_replace("/(?i)id int auto_increment\s+primary key/", 'id INTEGER PRIMARY KEY AUTOINCREMENT', $sql_file_content);
+
             // 解析SQL文件内容并执行
             $sql_statements = explode(';', trim($sql_file_content));
             $this->output("执行数据库建表SQL语句", true);
