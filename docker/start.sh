@@ -14,6 +14,10 @@ if [ ! -e "$destination_dir" ]; then
     mkdir "$destination_dir"
 fi
 
+if [ ! -e "$destination_dir/data" ]; then
+    mkdir "$destination_dir/data"
+fi
+
 chmod -R 777 "$destination_dir"
 
 # 检查是否存在锁文件
