@@ -152,15 +152,15 @@ class Install
                 unlink($dbPath);
             }
             $conn = $this->connect($form, $table_name);
-            //数据库的格式内容数据
             $sql_file_content = file_get_contents('../install.sql');
             // 解析SQL文件内容并执行
             $sql_statements = explode(';', trim($sql_file_content));
             foreach ($sql_statements as $sql_statement) {
-                if (!empty($sql_statement)) {
+                if (!empty(trim($sql_statement))) {
                     try {
                         $conn->exec($sql_statement);
                     } catch (Exception $exception) {
+                        return $this->json(['code' => 500, 'msg' => '建表失败: ' . $sql_statement . ' -> ' . $exception->getMessage()]);
                     }
                 }
             }
@@ -169,10 +169,11 @@ class Install
             // 解析SQL文件内容并执行
             $sql_statements = explode(';', trim($sql_file_content));
             foreach ($sql_statements as $sql_statement) {
-                if (!empty($sql_statement)) {
+                if (!empty(trim($sql_statement))) {
                     try {
                         $conn->exec($sql_statement);
                     } catch (Exception $exception) {
+                        return $this->json(['code' => 500, 'msg' => '初始数据失败: ' . $sql_statement . ' -> ' . $exception->getMessage()]);
                     }
                 }
             }
@@ -182,7 +183,11 @@ class Install
                     INSERT INTO user (mail, password, manager)
                     VALUES ('$admin_email', '$admin_password', 1);
                  ");
-            $conn->exec($AdminSql);
+            try {
+                $conn->exec($AdminSql);
+            } catch (Exception $exception) {
+                return $this->json(['code' => 500, 'msg' => '管理员添加失败: ' . $exception->getMessage()]);
+            }
             $conn = null;
         }
         $dbPathFromEnv = realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mtab.db';
