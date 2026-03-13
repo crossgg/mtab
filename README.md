@@ -2,7 +2,8 @@
 原作者：https://github.com/tsxcw/mtab.git
 
 修改后的镜像：`ghcr.io/crossgg/mtab:latest`
-·
+修改后的镜像：`ghcr.io/crossgg/mtab:latest`
+
 
 
 
