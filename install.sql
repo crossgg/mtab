@@ -67,7 +67,7 @@ alter table config
 
 create table if not exists file
 (
-    id bigINTEGER PRIMARY KEY AUTOINCREMENT
+    id INTEGER PRIMARY KEY AUTOINCREMENT
 ) ;
 
 alter table file
@@ -93,7 +93,7 @@ alter table file
 
 create table if not exists history
 (
-    id bigINTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     constraint history_id_uindex
         unique (id)
@@ -211,7 +211,7 @@ alter table linkstore
 
 create table if not exists note
 (
-    id bigINTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     constraint note_id_uindex
         unique (id)
 ) ;
@@ -299,7 +299,7 @@ alter table tabbar
 
 create table if not exists token
 (
-    id bigINTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     constraint token_id_uindex
         unique (id)
 ) ;
@@ -428,7 +428,7 @@ alter table wallpaper
 
 create table user_group
 (
-    id bigINTEGER PRIMARY KEY AUTOINCREMENT 
+    id INTEGER PRIMARY KEY AUTOINCREMENT 
 )
     ;
 
